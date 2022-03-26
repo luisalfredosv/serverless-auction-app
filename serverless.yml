@@ -1,5 +1,4 @@
-service:
-  name: auction-service
+service: auction-service
 
 plugins:
   - serverless-bundle
@@ -12,9 +11,13 @@ provider:
   stage: ${opt:stage, 'dev'}
 
 functions:
-  hello:
-    handler: src/handlers/
+  createAuction:
+    handler: src/handlers/createAuction.handler
     events:
       - http:
-          method:
-          path:
+          method: POST
+          path: /auction
+
+custom:
+  bundle:
+    linting: false
