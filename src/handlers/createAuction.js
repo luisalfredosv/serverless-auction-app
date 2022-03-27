@@ -3,6 +3,8 @@ import AWS from "aws-sdk";
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+const AUCTIONS_TABLE = process.env.AUCTIONS_TABLE;
+
 async function createAuction(event, context) {
 	const { title } = JSON.parse(event.body);
 	const now = new Date();
@@ -16,7 +18,7 @@ async function createAuction(event, context) {
 
 	await dynamoDb
 		.put({
-			TableName: "AuctionsTable",
+			TableName: AUCTIONS_TABLE,
 			Item: auction,
 		})
 		.promise();

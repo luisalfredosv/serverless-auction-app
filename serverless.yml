@@ -1,44 +1,34 @@
 service: auction-service
 
 plugins:
-  - serverless-bundle
-  - serverless-pseudo-parameters
+    - serverless-bundle
+    - serverless-pseudo-parameters
 
 provider:
-  name: aws
-  runtime: nodejs12.x
-  memorySize: 256
-  stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-1'}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:PutItem
-      Resource:
-        - arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/AuctionsTable
-
+    name: aws
+    runtime: nodejs12.x
+    memorySize: 256
+    stage: ${opt:stage, 'dev'}
+    region: ${opt:region, 'us-east-1'}
+    environment:
+      AUCTIONS_TABLE: ${self:custom.AuctionsTable.name}
+    iamRoleStatements:
+      - ${file(./iam/AuctionsTableIAM.yml):AuctionsTableIAM}
 resources:
-  Resources:
-    AuctionsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: AuctionsTable
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
+    Resources:
+        AuctionsTable: ${file(./resources/AuctionsTable.yml):AuctionsTable}
 
 functions:
-  createAuction:
-    handler: src/handlers/createAuction.handler
-    events:
-      - http:
-          method: POST
-          path: /auction
+    createAuction:
+        handler: src/handlers/createAuction.handler
+        events:
+            - http:
+                  method: POST
+                  path: /auction
 
 custom:
-  bundle:
-    linting: false
+  AuctionsTable:
+    name: !Ref AuctionsTable
+    arn: !GetAtt AuctionsTable.Arn
+    bundle:
+        linting: false
