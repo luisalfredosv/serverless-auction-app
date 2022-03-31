@@ -1,14 +1,10 @@
 import AWS from "aws-sdk";
 
 import { v4 as uuid } from "uuid";
-import middy from "@middy/core";
-import httpJsonBodyParser from "@middy/http-json-body-parser";
-import httpEventNormalizer from "@middy/http-event-normalizer";
-import httpErrorHandler from "@middy/http-error-handler";
 import createError from "http-errors";
+import commonMiddleware from "../lib/commonMiddleware";
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
-
 const AUCTIONS_TABLE = process.env.AUCTIONS_TABLE;
 
 async function createAuction(event, context) {
@@ -40,7 +36,4 @@ async function createAuction(event, context) {
 	};
 }
 
-export const handler = middy(createAuction)
-	.use(httpJsonBodyParser())
-	.use(httpEventNormalizer())
-	.use(httpErrorHandler());
+export const handler = commonMiddleware(createAuction);
