@@ -6,9 +6,8 @@ import commonMiddleware from "../lib/commonMiddleware";
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const AUCTIONS_TABLE = process.env.AUCTIONS_TABLE;
 
-async function getAuction(event, context) {
+export async function getAuctionById(auctionId) {
 	let auction = {};
-	const { auctionId } = event.pathParameters;
 	try {
 		const result = await dynamoDb
 			.get({
@@ -28,6 +27,12 @@ async function getAuction(event, context) {
 			`Auction with id ${auctionId} was not found`
 		);
 	}
+	return auction;
+}
+
+async function getAuction(event, context) {
+	const { auctionId } = event.pathParameters;
+	const auction = await getAuctionById(auctionId);
 
 	return {
 		statusCode: 200,
